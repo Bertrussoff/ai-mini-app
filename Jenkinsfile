@@ -9,7 +9,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git 'https://github.com/YOUR_USERNAME/ai-mini-app.git'
+                git 'https://github.com/Bertrussoff/ai-mini-app.git'
             }
         }
 
