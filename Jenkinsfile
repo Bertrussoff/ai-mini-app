@@ -9,17 +9,24 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', 
-                    branches: [[name: '*/main']], 
-                    userRemoteConfigs: [[url: 'https://github.com/Bertrussoff/ai-mini-app.git']]])
+                git 'https://github.com/Bertrussoff/ai-mini-app.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 sh '''
-                eval $(minikube docker-env)
-                docker build -t $IMAGE_NAME .
+                echo "Building Docker image..."
+                docker build -t $IMAGE_NAME -f docker/Dockerfile .
+                '''
+            }
+        }
+
+        stage('Load Image into Minikube') {
+            steps {
+                sh '''
+                echo "Loading image into Minikube..."
+                minikube image load $IMAGE_NAME
                 '''
             }
         }
@@ -27,7 +34,17 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
+                echo "Deploying to Kubernetes..."
                 kubectl apply -f k8s/
+                '''
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                sh '''
+                echo "Checking pods..."
+                kubectl get pods
                 '''
             }
         }
