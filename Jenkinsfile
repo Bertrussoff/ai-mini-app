@@ -9,7 +9,9 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git 'https://github.com/Bertrussoff/ai-mini-app.git'
+                checkout([$class: 'GitSCM', 
+                    branches: [[name: '*/main']], 
+                    userRemoteConfigs: [[url: 'https://github.com/Bertrussoff/ai-mini-app.git']]])
             }
         }
 
