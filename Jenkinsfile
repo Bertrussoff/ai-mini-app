@@ -13,20 +13,14 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build Docker Image (Inside Minikube)') {
             steps {
                 sh '''
-                echo "Building Docker image..."
-                docker build -t $IMAGE_NAME -f docker/Dockerfile .
-                '''
-            }
-        }
+                echo "Switching to Minikube Docker..."
+                eval $(minikube docker-env)
 
-        stage('Load Image to Minikube') {
-            steps {
-                sh '''
-                echo "Loading image into Minikube..."
-                minikube image load $IMAGE_NAME
+                echo "Building image: $IMAGE_NAME"
+                docker build -t $IMAGE_NAME -f docker/Dockerfile .
                 '''
             }
         }
@@ -34,8 +28,10 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
-                echo "Deploying to Kubernetes..."
+                echo "Updating deployment with new image..."
+
                 sed -i "s|image: ai-mini-app:.*|image: $IMAGE_NAME|g" k8s/deployment.yaml
+
                 kubectl apply -f k8s/
                 '''
             }
@@ -44,7 +40,8 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 sh '''
-                kubectl get pods
+                kubectl rollout status deployment ai-app
+                kubectl get pods -o wide
                 '''
             }
         }
