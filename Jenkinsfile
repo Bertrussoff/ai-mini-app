@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "ai-mini-app"
+        IMAGE_NAME = "ai-mini-app:${BUILD_NUMBER}"
     }
 
     stages {
@@ -17,7 +17,7 @@ pipeline {
             steps {
                 sh '''
                 echo "Building Docker image..."
-                docker build -t ai-mini-app -f docker/Dockerfile .
+                docker build -t $IMAGE_NAME -f docker/Dockerfile .
                 '''
             }
         }
@@ -26,7 +26,7 @@ pipeline {
             steps {
                 sh '''
                 echo "Loading image into Minikube..."
-                minikube image load ai-mini-app
+                minikube image load $IMAGE_NAME
                 '''
             }
         }
@@ -35,6 +35,7 @@ pipeline {
             steps {
                 sh '''
                 echo "Deploying to Kubernetes..."
+                sed -i "s|image: ai-mini-app:.*|image: $IMAGE_NAME|g" k8s/deployment.yaml
                 kubectl apply -f k8s/
                 '''
             }
