@@ -9,7 +9,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git 'https://github.com/Bertrussoff/ai-mini-app.git'
+                git branch: 'main', url: 'https://github.com/Bertrussoff/ai-mini-app.git'
             }
         }
 
@@ -17,16 +17,16 @@ pipeline {
             steps {
                 sh '''
                 echo "Building Docker image..."
-                docker build -t $IMAGE_NAME -f docker/Dockerfile .
+                docker build -t ai-mini-app -f docker/Dockerfile .
                 '''
             }
         }
 
-        stage('Load Image into Minikube') {
+        stage('Load Image to Minikube') {
             steps {
                 sh '''
                 echo "Loading image into Minikube..."
-                minikube image load $IMAGE_NAME
+                minikube image load ai-mini-app
                 '''
             }
         }
@@ -43,7 +43,6 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 sh '''
-                echo "Checking pods..."
                 kubectl get pods
                 '''
             }
