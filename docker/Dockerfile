@@ -5,8 +5,8 @@ WORKDIR /app
 COPY app/ /app/
 
 RUN pip install --no-cache-dir \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
+    --no-index \
+    --find-links=/app/packages \
     -r requirements.txt
 
 EXPOSE 5000
