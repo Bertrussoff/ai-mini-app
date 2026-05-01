@@ -2,12 +2,17 @@ from flask import Flask, render_template
 import random
 import logging
 
-app = Flask(__name__)
-events = []   # 👈 global event tracker
+from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 
+app = Flask(__name__)
+
+# Metrics
+REQUEST_COUNT = Counter('app_requests_total', 'Total App Requests')
+
+events = []
 USER_NAME = "Bertram Russell"
 
-# 👉 Setup logging (writes to file)
+# Setup logging (writes to file)
 logging.basicConfig(
     filename="app.log",
     level=logging.INFO,
@@ -25,15 +30,20 @@ def analyze_logs(logs):
     else:
         return "✅ System healthy"
 
+@app.route("/metrics")
+def metrics():
+    return generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST}
+
 @app.route("/")
 def home():
+    REQUEST_COUNT.inc()
     logs = []
     status = "Healthy ✅"
 
     for _ in range(5):
         if random.random() > 0.7:
             msg = "Error: Something failed!"
-            logging.error(msg)   # 👈 write real log
+            logging.error(msg)
             logs.append(msg)
         else:
             msg = "App running fine"
@@ -43,10 +53,10 @@ def home():
     if any("Error" in log for log in logs):
         status = "Error ❌"
 
-    # 👉 Read logs from file (REAL logs)
+    # Read logs from file (REAL logs)
     try:
         with open("app.log", "r") as f:
-            log_lines = f.readlines()[-20:]  # last 20 logs
+            log_lines = f.readlines()[-20:]
     except:
         log_lines = []
 
