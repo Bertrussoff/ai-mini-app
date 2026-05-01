@@ -9,6 +9,8 @@ RUN pip install --no-cache-dir \
     --find-links=/app/packages \
     -r requirements.txt
 
+ENV FLASK_APP=app.py
+
 EXPOSE 5000
 
-CMD ["python", "app.py"]
+CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=5000"]
