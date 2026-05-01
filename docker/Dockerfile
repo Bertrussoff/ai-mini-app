@@ -4,12 +4,7 @@ WORKDIR /app
 
 COPY app/ /app/
 
-RUN pip install --no-cache-dir \
-    --no-index \
-    --find-links=/app/packages \
-    -r requirements.txt
-
-ENV FLASK_APP=app.py
+RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 5000
 
