@@ -1,0 +1,22 @@
+grafana:
+  grafana.ini:
+    server:
+      root_url: "/grafana/"
+      serve_from_sub_path: true
+    security:
+      allow_embedding: true
+    auth:
+      disable_login_form: false
+    server:
+      protocol: http
+    server:
+      enforce_domain: false
+    server:
+      enable_gzip: true
+    server:
+      # 🔥 THIS IS THE KEY FIX
+      domain: ""
+    server:
+      # 🔥 MOST IMPORTANT LINE
+      # trust proxy headers (fix redirect loop)
+      router_logging: true
